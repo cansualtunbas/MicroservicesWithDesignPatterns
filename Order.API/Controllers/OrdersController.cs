@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Order.API.DTOs;
 using Order.API.Models;
 using Shared;
+using Shared.Events;
+using Shared.Interfaces;
 
 namespace Order.API.Controllers
 {
@@ -13,11 +15,12 @@ namespace Order.API.Controllers
     {
 
         private readonly AppDbContext _context;
-        private readonly IPublishEndpoint _publishEndpoint;
-        public OrdersController(AppDbContext context, IPublishEndpoint publishEndpoint)
+
+        private readonly ISendEndpointProvider _sendEndpointProvider;
+        public OrdersController(AppDbContext context, ISendEndpointProvider sendEndpointProvider)
         {
             _context = context;
-            _publishEndpoint = publishEndpoint;
+            _sendEndpointProvider= sendEndpointProvider;
         }
         [HttpPost]
         public async Task<IActionResult> Create(OrderCreateDto orderCreate)
@@ -41,7 +44,7 @@ namespace Order.API.Controllers
             await _context.SaveChangesAsync();
 
 
-            var OrderCreatedEvent = new OrderCreatedEvent()
+            var orderCreatedRequestEvent = new OrderCreatedRequestEvent()
             {
                 BuyerId = orderCreate.BuyerId,
                 OrderId = newOrder.Id,
@@ -51,14 +54,17 @@ namespace Order.API.Controllers
 
             orderCreate.orderItems.ForEach(item =>
             {
-                OrderCreatedEvent.OrderItems.Add(new OrderItemMessage { Count = item.Count, ProductId = item.ProductId });
+                orderCreatedRequestEvent.OrderItems.Add(new OrderItemMessage { Count = item.Count, ProductId = item.ProductId });
             });
 
             //publish subcribe olan bir kuyruk yoksa boşa gidecek.kuyruk adresine gerek yok(exchange gider, havadadır)
             //send direk kuyruğa gönderir.kuyruk ismi verilmesi gerekiyor.
-            await _publishEndpoint.Publish(OrderCreatedEvent);
 
-          
+            var sendEndpoint =await _sendEndpointProvider.GetSendEndpoint(new Uri($"queue:{RabbitMQSettingsConst.OrderSaga}"));
+
+            // await _publishEndpoint.Publish(OrderCreatedEvent);
+
+           await  sendEndpoint.Send<IOrderCreatedRequestEvent>(orderCreatedRequestEvent);
 
             return Ok();
         }

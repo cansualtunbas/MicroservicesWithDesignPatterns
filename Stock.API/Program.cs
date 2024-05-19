@@ -1,7 +1,6 @@
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Shared;
-using Stock.API.Consumers;
 using Stock.API.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,21 +17,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 });
 builder.Services.AddMassTransit(x =>
 {
-    x.AddConsumer<OrderCreatedEventConsumer>();
-    x.AddConsumer<PaymentFailedEventConsumer>();
     x.UsingRabbitMq((context, cfg) =>
     {
         //dockerize edilseydi burdaki adres dockerize adresi olacakti
         cfg.Host(builder.Configuration.GetConnectionString("RabbitMQ"));
         //subcribe olacak
-        cfg.ReceiveEndpoint(RabbitMQSettingsConst.StockOrderCreatedEventQueueName, e =>
-        {
-            e.ConfigureConsumer<OrderCreatedEventConsumer>(context);
-        });
-        cfg.ReceiveEndpoint(RabbitMQSettingsConst.StockPaymentFailedEventQueueName, e =>
-        {
-            e.ConfigureConsumer<PaymentFailedEventConsumer>(context);
-        });
+
 
 
     });
