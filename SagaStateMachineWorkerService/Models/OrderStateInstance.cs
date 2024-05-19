@@ -11,6 +11,7 @@ namespace SagaStateMachineWorkerService.Models
 {
     public class OrderStateInstance: SagaStateMachineInstance
     {
+
         //her bir saga state machine instance için guid id tutuyor
         public Guid CorrelationId { get; set; }
         public string CurrentState { get; set; }
@@ -31,7 +32,7 @@ namespace SagaStateMachineWorkerService.Models
             properties.ToList().ForEach(p =>
             {
                 var value = p.GetValue(this, null);
-                sb.Append($"{p.Name}:{value}");
+                sb.AppendLine($"{p.Name}:{value}");
             });
             sb.Append("----------------");
             return sb.ToString();

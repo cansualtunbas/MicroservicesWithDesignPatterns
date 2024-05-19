@@ -22,7 +22,6 @@ IHost host = Host.CreateDefaultBuilder(args)
                 });
             });
 
-
             cfg.AddBus(provider => Bus.Factory.CreateUsingRabbitMq(configure =>
             {
                 configure.Host(hostContext.Configuration.GetConnectionString("RabbitMQ"));

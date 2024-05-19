@@ -1,4 +1,5 @@
 using MassTransit;
+using Payment.API.Consumers;
 using Shared;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,13 +12,16 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddMassTransit(x =>
 {
-    
+    x.AddConsumer<StockReservedRequestPaymentConsumer>();
     x.UsingRabbitMq((context, cfg) =>
     {
         //dockerize edilseydi burdaki adres dockerize adresi olacakti
         cfg.Host(builder.Configuration.GetConnectionString("RabbitMQ"));
         //subcribe olacak
-     
+        cfg.ReceiveEndpoint(RabbitMQSettingsConst.PaymentStockReservedRequestQueueName, e =>
+        {
+            e.ConfigureConsumer<StockReservedRequestPaymentConsumer>(context);
+        });
 
 
 
