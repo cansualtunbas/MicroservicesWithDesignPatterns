@@ -8,6 +8,7 @@ namespace EventSourcing.API.EventStores
         public static void AddEventStore(this IServiceCollection services, 
             IConfiguration  configuration)
         {
+            
             var connection = EventStoreConnection.Create(connectionString: configuration.GetConnectionString("EventStore"));
 
             connection.ConnectAsync().Wait();
