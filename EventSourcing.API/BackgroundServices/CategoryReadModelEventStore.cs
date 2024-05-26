@@ -40,8 +40,6 @@ namespace EventSourcing.API.BackgroundServices
             //false: EventAppeared arg1.Acknowledge(args2.Event.EventId) gönderilirse gönderildi say.
             await _eventStoreConnection.ConnectToPersistentSubscriptionAsync(CategoryStream.StreamName, CategoryStream.GroupName, EventAppeared,autoAck:false);
 
-
-            throw new NotImplementedException();
         }
 
 
@@ -51,7 +49,7 @@ namespace EventSourcing.API.BackgroundServices
             _logger.LogInformation("The message processing....");
 
             //syrı bir classlibrary olduğu için (Shared)
-            var type = Type.GetType($"{Encoding.UTF8.GetString(args2.Event.Metadata)},EventSourcing.Shared");
+            var type = Type.GetType($"{Encoding.UTF8.GetString(args2.Event.Metadata)},EventSourcingShared");
 
             var eventData = Encoding.UTF8.GetString(args2.Event.Data);
 
