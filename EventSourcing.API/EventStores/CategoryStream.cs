@@ -7,6 +7,7 @@ namespace EventSourcing.API.EventStores
     public class CategoryStream : AbstractStream
     {
         public static string StreamName => "CategoryStream";
+        public static string GroupName => "agroup";
         public CategoryStream(IEventStoreConnection eventStoreConnection) : base(eventStoreConnection, StreamName)
         {
         }

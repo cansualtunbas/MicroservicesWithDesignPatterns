@@ -1,3 +1,4 @@
+using EventSourcing.API.BackgroundServices;
 using EventSourcing.API.EventStores;
 using EventSourcing.API.Models;
 using MediatR;
@@ -16,6 +17,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddEventStore(configuration);
 builder.Services.AddSingleton<CategoryStream>();
+builder.Services.AddHostedService<CategoryReadModelEventStore>();
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlServer(configuration.GetConnectionString("SqlConnection"));
